@@ -1,0 +1,12 @@
+.MImage{
+  margin-bottom: 20px;
+
+}
+
+.MImage img{
+  opacity: 1;
+}
+
+.MImage img:hover, .img-hovered{
+  opacity: 0.5 !important;
+}
