@@ -1,0 +1,31 @@
+.MItem {
+//  border: 1px dashed #f00;
+	padding: 10px;
+}
+
+
+.valid{
+	display:block;
+	overflow:hidden;
+}
+
+.valid:hover{
+	background-color:#ccc;
+}
+
+
+.invalid:hover{
+	background-color: #ccc;
+}
+
+
+.invalid{
+	display:block;
+	height:40px;
+	overflow:hidden;
+}
+
+.picture{
+	height:100%;
+}
+

@@ -11,13 +11,13 @@ var converter = new Showdown.converter();
 
 var MImage = React.createClass({
 	getInitialState: function(){
-	console.log("INIT");
-     return({parent: this.props.parent, img_ref: this.props.img_ref, img_md:"", text_md:""});
+	//console.log("INIT");
+     return({parent: this.props.parent, img_ref: this.props.img_ref, img_md:"", text_md:"", top: this.props.top, bottom:this.props.bottom});
   
   },
   
   componentDidMount: function(){
-  		console.log("MOUNT");
+  		//console.log("MOUNT");
   },
 
  	mouseEnter: function(){
@@ -68,6 +68,20 @@ var MImage = React.createClass({
 
 
 	render: function(){
+    this.state.img_md = this.props.img_md;
+
+    var imgMarkup = converter.makeHtml( this.props.img_md );
+    var textMarkup = converter.makeHtml( this.state.text_md );
+
+		return(
+			<div className="MImage"> 
+				<div dangerouslySetInnerHTML={{__html: imgMarkup}} /> 
+			</div>
+			);
+	},
+
+
+	render2: function(){
     this.state.img_md = this.props.img_md;
 
     var imgMarkup = converter.makeHtml( this.state.img_md );

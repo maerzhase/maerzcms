@@ -1,7 +1,7 @@
 'use strict';
 
 var React  = require('react/addons'),
-	MImage = require('./MImage.js'),
+	MItem = require('./MItem.js'),
 	$ 	   = require('jquery');
 
 require('styles/MProject.scss');
@@ -21,13 +21,12 @@ var MProject = React.createClass({
   	  	$.ajax({
 		    type: 'POST',
 		    url: 'php/writecontent.php',
-		    dataType: 'json',
 		    data: {'saveFile': this.state.data},
 		    success: function(msg) {
 		    	console.log("OMG");
 		    },
 		    error: function(err,err2){
-		    	console.error(err2);
+		    	console.error(err);
 		    }
 		});
 
@@ -44,6 +43,31 @@ var MProject = React.createClass({
   },
 
   getProjectContent: function(){
+  	this.state.activeProject = this.props.activeProject;
+	this.state.activeCategory = this.props.activeCategory;
+
+  	var obj = this.state.data.projects[this.state.activeCategory];
+  	if(typeof obj === 'undefined'){
+  		return;
+  	}
+  	var currentProject =obj[this.props.activeProject];
+  	if(typeof currentProject === 'undefined'){
+  		return;
+  	}
+  	
+  	var items = currentProject.items;
+  	var self = this;
+  	var itemNodes = Object.keys(items).map(function(key, index){
+  		return(
+        <div>
+            <MItem parent={self} data={items[key]} />
+  			</div>
+          );
+  	});
+  	return itemNodes;
+  },
+
+  getProjectContent_old: function(){
   	this.state.activeProject = this.props.activeProject;
 	this.state.activeCategory = this.props.activeCategory;
 

@@ -42,7 +42,7 @@ function scanFolder( $directory , $gen, $reverse) {
 					$projects[$directory_parts[2]]['videos'] = array();
 					$projects[$directory_parts[2]]['description'] = "";
 					$projects[$directory_parts[2]]['visible'] = true;
-					$projects[$directory_parts[2]]['markdown'] = "omg";
+					$projects[$directory_parts[2]]['markdown'] = "";
 					$projects[$directory_parts[2]]['category'] = $directory_parts[1];
 				}
 
@@ -155,8 +155,9 @@ function writeContent(){
 
 // if PHP POST: Save File
 if(isset($_POST['saveFile']) && !empty($_POST['saveFile'])) {
+	echo "asdasdasd";
     $json = $_POST['saveFile'];
-	$file = '../content.json';
+	$file = 'contenttest.json';
 	file_put_contents($file, json_encode($json));
 
 }
