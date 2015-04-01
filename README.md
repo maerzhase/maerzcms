@@ -8,7 +8,7 @@ the setup uses the ```webpack-dev-server``` for front-end and live-reload and is
 infos: http://webpack.github.io/docs/webpack-dev-server.html
 
 to work on the project please start the webpack-dev-server with:
-```grunt serve``` in the root directory
+```grunt serve``` in the root directory.
 run the backend server in src/ e.g. ```php -S 127.0.0.1:8888 -t .```
 
 open http://localhost:8000 (front-end) to work. request are automatically forwarded to the back-end.
