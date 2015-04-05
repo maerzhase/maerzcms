@@ -2,6 +2,7 @@
 
 var React = require('react/addons'),
       $   = require('jquery'),
+      MItemDummy = require('./MItemDummy.js'),
       MImage = require('./MImage.js');
 
 
@@ -11,13 +12,12 @@ require('styles/MItem.scss');
 var MItem = React.createClass({
 
 	getInitialState: function(){
-	  console.log("INIT");
-    var itemType =  this.getItem();
+
     return({parent: this.props.parent, data: this.props.data});
   },
   
   componentDidMount: function(){
-  		//console.log("MOUNT");
+
   },
 
  	mouseEnter: function(){
@@ -25,13 +25,11 @@ var MItem = React.createClass({
  	},
 
  	mouseLeave: function(){
-		//$(this.getDOMNode(),'img').removeClass('display_none');
-		//$(this.getDOMNode(),'input').addClass('display_none');
+
  	},
 
   onSubmit: function(){
     console.log("SUBMIT");
-
   },
 
  	mouseClick: function(){
@@ -41,18 +39,10 @@ var MItem = React.createClass({
 
     editor.removeClass('hidden');
     viewer.addClass('hidden');
-    
-    //   if(editor.hasClass('hidden')){
-    //       viewer.removeClass('hidden');
-    //   }else{
-    //     if(!viewer.hasClass('hidden')){
-    //       viewer.addClass('hidden');
-    //     }
-    //   }
  	},
 
   checkSubmit: function(e){
-    if(e.keyCode == 13 && e.metaKey) {
+    if(e.keyCode === 13 && e.metaKey) {
       this.makeSubmit();
     }
   },
@@ -66,12 +56,11 @@ var MItem = React.createClass({
     
     var value = $(textarea).val();
     
-    console.log("SUBMIT");
     this.props.data.md = value;
 
     editor.addClass('hidden');
     viewer.removeClass('hidden');
-    //this.render();
+
     this.setState({parent: this.props.parent, data: this.props.data});
   },
 
@@ -86,44 +75,47 @@ var MItem = React.createClass({
  	},
 
  	componentWillReceiveProps: function(){
- 		//this.setState({parent: this.props.parent, img_md:this.props.img_md, text_md:this.props.text_md});
- 		var input = $(this.getDOMNode()).find('input');
- 		input.addClass('hidden');
-    console.log("WILL");
+ 		
+    var editor = $(this.getDOMNode()).find('.editor');
+    var viewer = $(this.getDOMNode()).find('.viewer');
 
-    
+    editor.addClass('hidden');
+    viewer.removeClass('hidden');
  	},
 
  	componentDidUpdate: function(){
-    console.log("UPDATE");
 
  	},
 
-  getItem: function(){
-    var element;
+  getSpecificComponent: function(){
     var data = this.props.data;
-    //console.log(data.type);
-    var itemData = {};
+    var itemComponent = {};
+  var self = this;
+    // make empty data if dummy item
+    if(data === null){
+      data = {};
 
+    }
+
+    // create components by item type
     switch(data.type){
       case "pictures":
-        if(data.md === null || data.md == "" || typeof data.md === 'undefined'){
-          console.log("HAS NONe");
-          itemData.md = "![picture]("+encodeURI(data.url)+")";
-          data.md = itemData.md;
+        // if md is empty create new md
+        if(data.md === null || data.md === "" || typeof data.md === 'undefined'){
+          itemComponent.md = "![picture]("+encodeURI(data.url)+")";
+          data.md = itemComponent.md;
         }else{
-          console.log("ALREADY HAS " + data.md);
-          itemData.md = data.md;
+          // use markdown from json
+          itemComponent.md = data.md;
         }
-                  console.log(" " + itemData.md);
-
-        itemData.obj =  ( <MImage 
-                        parent={self} 
-                        img_ref={data.url}
-                        img_md={itemData.md} 
-                        bottom="" 
-                        top="" 
-                                          />);
+        // make specific component
+        itemComponent.component =  ( <MImage 
+                                        parent={self} 
+                                        url={data.url}
+                                        md={itemComponent.md} 
+                                        bottom="" 
+                                        top="" 
+                                    />);
       break;
       case "videos":
       
@@ -131,25 +123,42 @@ var MItem = React.createClass({
       case "text":
 
       break;
-    }
+      default:
+        if(data.md === null || data.md === "" || typeof data.md === 'undefined'){
+          itemComponent.md = "";
+          data.md = itemComponent.md;
+        }else{
+          // use markdown from json
+          itemComponent.md = data.md;
+        }
 
-    return itemData;
+        itemComponent.component =  ( <MItemDummy 
+                                        parent={self} 
+                                        md={itemComponent.md} 
+                                        bottom="" 
+                                        top="" 
+                                    />);
+
+
+      break;
+    }
+    
+
+    return itemComponent;
 
   },
 
 	render: function(){
-    console.log("RENDER");
 
-    var item = this.getItem();
+    var itemComponent = this.getSpecificComponent();
 
-    console.log(item.obj);
 		return(
 			<div className="MItem">
           <div onClick={this.mouseClick} className="valid"> 
-              <div className="viewer"> {item.obj} </div>
+              <div className="viewer"> {itemComponent.component} </div>
               <form className="editor hidden" onSubmit={this.onSubmit}>
                 <textarea onKeyDown={this.checkSubmit} onChange={this.inputChange} className="form-control">
-                  {item.md}
+                  {itemComponent.md}
                 </textarea>
               </form> 
           </div>
