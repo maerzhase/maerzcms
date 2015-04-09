@@ -1,6 +1,5 @@
 .MItem {
 //  border: 1px dashed #f00;
-	padding: 10px;
 }
 
 
@@ -10,12 +9,12 @@
 }
 
 .valid:hover{
-	background-color:#ccc;
+	//background-color:#ccc;
 }
 
 
 .invalid:hover{
-	background-color: #ccc;
+	//background-color: #ccc;
 }
 
 
@@ -24,6 +23,23 @@
 	height:40px;
 	overflow:hidden;
 }
+.editor{
+	width:75%;
+	padding:20px;
+	textarea{
+		resize:vertical;
+	}
+
+}
+
+.title{
+	margin-top:20px;
+	margin-bottom: 20px;
+	width: 90%;
+	padding: 0 !important;
+}
+
+
 
 .picture{
 	height:100%;

@@ -38,12 +38,13 @@ function scanFolder( $directory , $gen, $reverse) {
 				}
 
 				if($directory_parts[2] != ''){
-					$projects[$directory_parts[2]]['pictures'] = array();
-					$projects[$directory_parts[2]]['videos'] = array();
-					$projects[$directory_parts[2]]['description'] = "";
-					$projects[$directory_parts[2]]['visible'] = true;
-					$projects[$directory_parts[2]]['markdown'] = "";
-					$projects[$directory_parts[2]]['category'] = $directory_parts[1];
+					$projects[$directory_parts[1]][$directory_parts[2]]['pictures'] = array();
+					$projects[$directory_parts[1]][$directory_parts[2]]['items'] = array();
+					$projects[$directory_parts[1]][$directory_parts[2]]['videos'] = array();
+					$projects[$directory_parts[1]][$directory_parts[2]]['description'] = "";
+					$projects[$directory_parts[1]][$directory_parts[2]]['visible'] = true;
+					$projects[$directory_parts[1]][$directory_parts[2]]['markdown'] = "";
+					$projects[$directory_parts[1]][$directory_parts[2]]['category'] = $directory_parts[1];
 				}
 
 				 
@@ -76,14 +77,19 @@ function scanFolder( $directory , $gen, $reverse) {
 					$filetype = 'videos';
 				}
 				if($directory_parts[2] != '' && $ext != 'txt' && $ext != 'odt' ){
-					array_push($projects[$directory_parts[2]][$filetype], $fileurl);
+					$index = sizeof($projects[$directory_parts[1]][$directory_parts[2]]['items']);
+					$projects[$directory_parts[1]][$directory_parts[2]]['items']['item'.$index] =  array();
+					$projects[$directory_parts[1]][$directory_parts[2]]['items']['item'.$index]['url'] = $fileurl;
+					$projects[$directory_parts[1]][$directory_parts[2]]['items']['item'.$index]['md'] = "";
+					$projects[$directory_parts[1]][$directory_parts[2]]['items']['item'.$index]['type'] = $filetype;
+					//array_push($projects[$directory_parts[1]][$directory_parts[2]][$filetype]['picture'.$index], $fileurl);
 				}
 				else if($filename == 'description'){
 					echo'YES';
 					$handle = fopen($fileurl, "r");
 					$text = fread($handle, filesize($fileurl));
 					fclose($handle);
-					$projects[$directory_parts[2]]['description'] = $text;
+					$projects[$directory_parts[1]][$directory_parts[2]]['description'] = $text;
 				}
 				else if($filename == 'title'){
 					$handle = fopen($fileurl, "r");
@@ -127,24 +133,26 @@ function scanFolder( $directory , $gen, $reverse) {
 
 function writeContent(){
 	global $content, $projects;
-	$file = 'content.json';
+	$file = 'lalelu.json';
 	//$result = array_merge($content, $projects);
-	foreach($projects as $key => $value){
-		$currentkey = $key;
-		$md_string = '';
-		$pictures = $value['pictures'];
-		$videos = $value['videos'];
-		$description = $value['description'];
-		$md_string .= '###'.$currentkey.'&#10;&#10;';
-		$md_string .= $description.'&#10;&#10;';
+	foreach($projects as $category => $projects_in_category){
+		foreach($projects_in_category as $key => $value){
+			$currentkey = $key;
+			$md_string = '';
+			$pictures = $value['pictures'];
+			$videos = $value['videos'];
+			$description = $value['description'];
+			$md_string .= '###'.$currentkey.'&#10;&#10;';
+			$md_string .= $description.'&#10;&#10;';
 
-		foreach($pictures as $key => $picture){
-			$md_string .= '![picture'.$key.']('.$picture.')';
-			$md_string .= ' &#10;&#10;';
+			foreach($pictures as $key => $picture){
+				$md_string .= '![picture'.$key.']('.$picture.')';
+				$md_string .= ' &#10;&#10;';
+			}
+
+			$projectname = $currentkey;
+			$projects[$category][$projectname]['markdown']  =  $md_string;
 		}
-
-		$projectname = $currentkey;
-		$projects[$projectname]['markdown']  =  $md_string;
 	}
 
 	$content['projects'] = $projects;
@@ -155,11 +163,18 @@ function writeContent(){
 
 // if PHP POST: Save File
 if(isset($_POST['saveFile']) && !empty($_POST['saveFile'])) {
-	echo "asdasdasd";
+	//echo "asdasdasd";
     $json = $_POST['saveFile'];
 	$file = 'contenttest.json';
 	file_put_contents($file, json_encode($json));
+	
 
+}
+
+if(isset($_POST['regenerate'])){
+	if(scanFolder('../content',0,false)  == null){
+		writeContent();
+	};
 }
 
 ?>

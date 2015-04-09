@@ -1,13 +1,36 @@
 <?php
 require('connect.php');
+	session_start();
 
-if(isset($_POST['checkLogin']) && !empty($_POST['checkLogin'])) {
+
+if(isset($_POST['makeLogin']) && !empty($_POST['makeLogin'])) {
 	// get username, password + website
 	$username = $_POST['username'];
 	$password = $_POST['password'];
 	$website = $_POST['website'];
+	
+
 	// call checkLogin function
 	checkLogin($username,$password, $website);
+}
+
+if(isset($_POST['checkLogin']) && !empty($_POST['checkLogin'])) {
+	isLoggedIn();
+
+}
+
+if(isset($_POST['logout']) && !empty($_POST['logout'])) {
+	session_regenerate_id(true);
+	session_destroy();
+}
+
+
+function isLoggedIn(){
+	if(isset($_SESSION['username'])){
+		echo 1;
+	}else{
+		echo 0;
+	}
 }
 
 function checkLogin($username, $password, $website){
@@ -23,7 +46,9 @@ function checkLogin($username, $password, $website){
 		echo 1;
 	}
 	else{
+		session_regenerate_id(true);
 		echo 0;
 	}
 }
+
 ?>

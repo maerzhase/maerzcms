@@ -10,6 +10,7 @@ var converter = new Showdown.converter();
 
 
 var MImage = React.createClass({
+	
 	getInitialState: function(){
      return({parent: this.props.parent, url: this.props.url, md:this.props.md, top: this.props.top, bottom:this.props.bottom});
   },

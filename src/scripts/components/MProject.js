@@ -17,26 +17,7 @@ var MProject = React.createClass({
      return({ activeProject: this.props.activeProject, activeCategory: this.props.activeCategory, data:this.props.data});
   },
 
-  updateImage: function(img_ref,img_md,text_md){
-  		var obj = this.state.data.projects[this.state.activeCategory];
-  		var currentProject =obj[this.props.activeProject];
-  		var images = currentProject.pictures;
-  		images[img_ref]['text'] = text_md;
-
-  	  	$.ajax({
-		    type: 'POST',
-		    url: 'php/writecontent.php',
-		    data: {'saveFile': this.state.data},
-		    success: function(msg) {
-		    	console.log("updated .json file");
-		    },
-		    error: function(err,err2){
-		    	console.error(err);
-		    }
-		    });
-  },
-
-  getProjectContent: function(){
+  getProjectItems: function(){
   	this.state.activeProject = this.props.activeProject;
 	  this.state.activeCategory = this.props.activeCategory;
 
@@ -56,12 +37,32 @@ var MProject = React.createClass({
   	var itemNodes = Object.keys(items).map(function(key, index){
   		return(
         <div>
-            <MItem parent={self} data={items[key]} />
+          <MItem parent={self} all_data={self.props.data} item_data={items[key]} item_ref={key}/>
   			</div>
           );
   	});
 
   	return itemNodes;
+  },
+
+  getProjectDescription: function(){
+    this.state.activeProject = this.props.activeProject;
+    this.state.activeCategory = this.props.activeCategory;
+
+    var categoryProjects = this.props.data.projects[this.props.activeCategory];
+
+    if(typeof categoryProjects === 'undefined'){
+      return;
+    }
+    var currentProject = categoryProjects[this.props.activeProject];
+    if(typeof currentProject === 'undefined'){
+      return;
+    }
+    
+
+    var description = <MItem parent={this} all_data={this.props.data} item_data={currentProject.description} item_ref="description" />;
+
+    return description;
   },
 
   componentWillReceiveProps: function(){
@@ -73,9 +74,11 @@ var MProject = React.createClass({
   },
 
   render: function(){
+
 		return(
 			<div className="MProject">
-				{this.getProjectContent()}
+        {this.getProjectDescription()}
+        {this.getProjectItems()}
 			</div>
 
 			);

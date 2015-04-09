@@ -6,9 +6,110 @@ html, body {
 /* main */
 
 .main {
-  width: 100%;
+}
+
+#wrapper{
+  padding-left: 250px;
+  transition: 'padding-left' 0.4s ease 0s;
+}
+
+#sidebar-wrapper {
+  margin-left: -250px;
+  left: 250px;
+  width: 250px;
+  position: fixed;
   height: 100%;
-  color: #000;
+  transition: all 0.4s ease 0s;
+  overflow-y:auto;
+}
+
+#page-content-wrapper {
+  width: 100%;
+  overflow-x:hidden;
+}
+
+.sidebar-nav {
+  position: absolute;
+  top: 0;
+  width: 250px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+#footer{
+  position: fixed;
+  width: 100%;
+  height:20px;
+  line-height: 20px;
+  bottom:0;
+  background-color: white;
+  font-size: 12px;
+  text-align: center;
+
+
+}
+
+#adminmode{
+    font-weight: bold;
+}
+
+
+@media (max-width:767px) {
+
+    #wrapper {
+      padding-left: 0;
+    }
+
+    #sidebar-wrapper {
+      left: 0;
+    }
+
+    #wrapper.active {
+      position: relative;
+      left: 250px;
+    }
+
+    #wrapper.active #sidebar-wrapper {
+      left: 250px;
+      width: 250px;
+      transition: all 0.4s ease 0s;
+    }
+
+}
+
+
+
+#loginForm{
+  display: block;
+  height:250px;
+  width:330px;
+  opacity: 0;
+  
+  position: fixed;
+  
+  /* css3 drop shadow */
+  -webkit-box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+  -moz-box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+  
+  /* css3 border radius */
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  
+  background:#eee;
+  padding:20px;
+  left:50vw;
+  top:50vh;
+
+  margin-left:-165px;
+  margin-top: -125px;
+
+  -webkit-transition: opacity 0.3s ease-in-out;
+  -moz-transition: opacity 0.3s ease-in-out;
+  -ms-transition: opacity 0.3s ease-in-out;
+  -o-transition: opacity 0.3s ease-in-out;
+  transition: opacity 0.3s ease-in-out;
+  z-index: 10;   
 }
 
 /* transitions */
@@ -32,6 +133,8 @@ html, body {
 }
 
 
+
+
 /* stuff */
 
 .hidden{
@@ -39,7 +142,8 @@ html, body {
 }
 
 .img-responsive{
-  width: 50%;
+  width: 75%;
   height: auto;
 }
+
 

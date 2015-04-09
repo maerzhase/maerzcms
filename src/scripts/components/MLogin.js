@@ -14,8 +14,63 @@ var MLogin = React.createClass({
     return({parent:this.props.parent});
   },
 
+  isLoggedIn: function(callback){
+    $.ajax({
+      type: 'POST',
+      url: 'php/login/login.php',
+      data: { 'checkLogin': 1, },
+      success: function(msg) {
+        //console.log("CHECK LOGIN: " + msg);
+        
+        //window.isLoggedIn = msg;
+        if(msg == 1){
+          //self.closeLogin();
+          //self.state.parent.update();
+          //console.log("TRUE");
+
+          return callback(true);
+        }else{
+          //console.log("FALSE");
+          return callback(false);
+        }
+      },
+      error: function(err,err2){
+        console.error(err);
+      }
+    });
+  },
+
+  regenerate: function(e){
+    e.preventDefault();
+    this.isLoggedIn(function(isLoggedIn){
+      if(isLoggedIn === false) return;
+      $.ajax({
+        type: 'POST',
+        url: 'writecontent.php',
+        data: { 'regenerate': 1,},
+        success: function() {
+          console.log("regenerate");        
+        },
+        error: function(err,err2){
+          console.error(err);
+        }
+      });
+    });
+  },
+
   doLogout: function(e){
     e.preventDefault();
+    $.ajax({
+      type: 'POST',
+      url: 'php/login/login.php',
+      data: { 'logout': 1,},
+      success: function() {
+        console.log("logout");        
+      },
+      error: function(err,err2){
+        console.error(err);
+      }
+    });
     window.isLoggedIn = 0;
     this.state.parent.update();
   },
@@ -50,19 +105,20 @@ var MLogin = React.createClass({
     $.ajax({
       type: 'POST',
       url: 'php/login/login.php',
-      data: { 'checkLogin': 1, 
+      data: { 'makeLogin': 1, 
           'username': username, 
           'password': password, 
           'website': website },
 
       success: function(msg) {
         console.log("LOGIN IS: " + msg);
-
+        
         window.isLoggedIn = msg;
         if(msg == 1){
           self.closeLogin();
           self.state.parent.update();
         }
+        
       },
 
       error: function(err,err2){
@@ -77,7 +133,14 @@ var MLogin = React.createClass({
   render: function () {
     var loginBtn;
     if(window.isLoggedIn == 1){
-      loginBtn = (<a href="#" onClick={this.doLogout}> logout </a>);
+
+      loginBtn = (<ul className="nav nav-pills nav-stacked">
+
+                    <li><a href="#" onClick={this.doLogout}> logout </a></li>
+                    <li><a href="#" > refresh </a></li>
+                    <li><a onClick={this.regenerate} className="danger" href="#" > reset to filesystem </a></li>
+                  </ul>
+                          );
     }else{
       loginBtn = (<a href="#" onClick={this.openLogin}> login </a>);
     }
