@@ -13,9 +13,24 @@ require('../../../node_modules/bootstrap/dist/css/bootstrap.css');
 
 var MaerzcmsApp = React.createClass({
   getInitialState: function(){
+    var url = window.location.href;
+    url = url.substring(url.indexOf("#") + 1);
+    var urlValues = url.split('/'); 
+    console.log(url.split('/'));
+    var project = "";
+    var category = "";
+    if(urlValues.length === 3){
+      category = decodeURI(urlValues[1]);
+      project = decodeURI(urlValues[2]);
+      console.log("got parameters" + category + project);
+
+    }
+
     window.isLoggedIn = 0;
-    return({data:null, activeProject:"", activeCategory:""});
+    return({data:null, activeProject:project, activeCategory:category});
   },
+
+
 
 	loadDataFromServer: function(){
 		$.ajax({
@@ -41,6 +56,13 @@ var MaerzcmsApp = React.createClass({
 
   componentDidMount: function(){
     this.loadDataFromServer();
+  },
+
+  componentDidUpdate: function(){
+        var loginContainer = $(this.getDOMNode()).find('#loginForm');    
+        if(!$(loginContainer).hasClass("animate_opacity")){
+          $(loginContainer).addClass("animate_opacity");
+        }
   },
 
   openLoginForm: function(){
@@ -72,27 +94,30 @@ var MaerzcmsApp = React.createClass({
             <div id="sidebar-wrapper">
               <div className="sidebar-nav">
                 <MItem parent={this} all_data={this.state.data} item_data={data.websiteTitle} item_ref="websiteTitle"/>
-  	      			<MNavigation parent={this} data={this.state.data}/>
+  	      			<MNavigation parent={this} data={this.state.data} activeProject={this.state.activeProject}/>
               </div>
             </div>
   	      	<div id="page-content-wrapper">
               <div className="page-content">
         	       	<div className="row">
                     <div className='col-xs-12'>
-        	      	    <MProject activeProject={this.state.activeProject} activeCategory={this.state.activeCategory} data={this.state.data}/>
+        	      	    <MProject parent={this} activeProject={this.state.activeProject} activeCategory={this.state.activeCategory} data={this.state.data}/>
         	      	  </div>
                   </div>
               </div>
+
             </div>
-          </div>
-          
-          <div id="loginForm">
-            <MLoginForm />
+
           </div>
 
-          <div id="footer">
-              <span id="adminmode">{adminMode}</span> <a onClick={this.openLoginForm} href="#"> login  </a> | impressum 
+          
+          <div id="loginForm">
+            <MLoginForm parent={this} />
           </div>
+
+            <div id="footer" className="">
+                <span id="adminmode">{adminMode}</span> <a onClick={this.openLoginForm} href="#"> login  </a> | powered by maerzcms &copy; 2015 
+            </div>
 
         </div>
 
@@ -102,8 +127,9 @@ var MaerzcmsApp = React.createClass({
     }else{
 	    return (
 	      <div className='main row'>
-	      	<div className='col-xs-2'> NO NAVIGATION LOADED </div>
-	      	<div className='col-xs-10'> NO CONTENT LOADED </div>
+
+	      	<div className='col-xs-2'>  </div>
+	      	<div className='col-xs-10'> </div>
 	      </div>
 	    );
     }

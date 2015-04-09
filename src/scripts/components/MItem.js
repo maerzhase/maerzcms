@@ -132,7 +132,9 @@ var MItem = React.createClass({
     if(window.isLoggedIn == 0) return;
     var viewer= $(this.getDOMNode()).find('.viewer');
     $(viewer).css({
-      'opacity':'1'
+      'opacity':'1',
+      'cursor':'standart',
+
     });
   },
 

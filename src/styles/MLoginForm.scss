@@ -1,3 +1,15 @@
+$brand-danger:  rgb(217, 83, 79);
+
 .MLoginForm {
   border: 1px dashed #f00;
+}
+
+.danger{
+	background-color:rgba($brand-danger,0.8);
+	color:white;
+}
+
+.danger:hover{
+	background-color:$brand-danger !important;
+	color:white;
 }

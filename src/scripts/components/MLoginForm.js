@@ -6,6 +6,7 @@ require('styles/MLoginForm.scss');
 
 var MLoginForm = React.createClass({
   closeLogin: function(){
+    var self =this;
     var loginContainer = $(this.getDOMNode()).parent();
     $(loginContainer).css({
       'opacity':0,
@@ -14,7 +15,69 @@ var MLoginForm = React.createClass({
       $(loginContainer).css({
         'z-index':'-10',
       });
+      self.props.parent.update();
     },500);
+  },
+
+  doLogout: function(e){
+    e.preventDefault();
+    $.ajax({
+      type: 'POST',
+      url: 'php/login/login.php',
+      data: { 'logout': 1,},
+      success: function() {
+        console.log("logout");        
+      },
+      error: function(err,err2){
+        console.error(err);
+      }
+    });
+    this.props.parent.update();
+    window.isLoggedIn = 0;
+  },
+
+  isLoggedIn: function(callback){
+    $.ajax({
+      type: 'POST',
+      url: 'php/login/login.php',
+      data: { 'checkLogin': 1, },
+      success: function(msg) {
+        //console.log("CHECK LOGIN: " + msg);
+        
+        //window.isLoggedIn = msg;
+        if(msg == 1){
+          //self.closeLogin();
+          //self.state.parent.update();
+          //console.log("TRUE");
+
+          return callback(true);
+        }else{
+          //console.log("FALSE");
+          return callback(false);
+        }
+      },
+      error: function(err,err2){
+        console.error(err);
+      }
+    });
+  },
+
+  regenerate: function(e){
+    e.preventDefault();
+    this.isLoggedIn(function(isLoggedIn){
+      if(isLoggedIn === false) return;
+      $.ajax({
+        type: 'POST',
+        url: 'writecontent.php',
+        data: { 'regenerate': 1,},
+        success: function() {
+          console.log("regenerate");        
+        },
+        error: function(err,err2){
+          console.error(err);
+        }
+      });
+    });
   },
 
   submitLogin: function(e){
@@ -100,6 +163,13 @@ var MLoginForm = React.createClass({
             <button onClick={this.closeLogin} type="button" className="btn btn-primary btn-xs">
               <span className="glyphicon glyphicon-remove" aria-hidden="true"></span> Close
             </button>     
+          </div>
+          <div className="adminFunctions col-sm-12">
+            <ul className="list-unstyled">
+              <li><a href="#" onClick={this.doLogout}> logout </a></li>
+              <li><a href="#" > refresh </a></li>
+              <li><a onClick={this.regenerate} className="danger" href="#" > reset to filesystem </a></li>
+            </ul>
           </div>
         </div>
 

@@ -1,11 +1,18 @@
 /* Stiziles */
 
 html, body {
+  background-color: #fff !important;
+  height: 100%;
+  width: 100%;
+  font-family: 'Roboto', sans-serif;
+  letter-spacing: 1px;
+  -webkit-font-smoothing: subpixel-antialiased;
 }
 
 /* main */
 
 .main {
+
 }
 
 #wrapper{
@@ -21,11 +28,16 @@ html, body {
   height: 100%;
   transition: all 0.4s ease 0s;
   overflow-y:auto;
+  background-color: #222;
+  color: #aaa !important;
+  z-index: 1;
 }
 
 #page-content-wrapper {
   width: 100%;
   overflow-x:hidden;
+  padding-left: 40px;
+  padding-top:40px;
 }
 
 .sidebar-nav {
@@ -35,6 +47,7 @@ html, body {
   list-style: none;
   margin: 0;
   padding: 0;
+
 }
 
 #footer{
@@ -46,6 +59,7 @@ html, body {
   background-color: white;
   font-size: 12px;
   text-align: center;
+  z-index: -0;
 
 
 }
@@ -81,10 +95,10 @@ html, body {
 
 
 #loginForm{
+
   display: block;
   height:250px;
   width:330px;
-  opacity: 0;
   
   position: fixed;
   
@@ -98,18 +112,22 @@ html, body {
   
   background:#eee;
   padding:20px;
-  left:50vw;
-  top:50vh;
+  left:50%;
+  top:50%;
 
   margin-left:-165px;
   margin-top: -125px;
+  opacity: 0;
+ 
+  z-index: -10;   
+}
 
-  -webkit-transition: opacity 0.3s ease-in-out;
-  -moz-transition: opacity 0.3s ease-in-out;
-  -ms-transition: opacity 0.3s ease-in-out;
-  -o-transition: opacity 0.3s ease-in-out;
-  transition: opacity 0.3s ease-in-out;
-  z-index: 10;   
+.animate_opacity{
+   -webkit-transition: opacity 0.3s ease-in-out;
+  -moz-transition: opacity 0.3s  ease-in-out;
+  -ms-transition: opacity 0.3s  ease-in-out;
+  -o-transition: opacity 0.3s  ease-in-out;
+  transition: opacity 0.3s  ease-in-out;
 }
 
 /* transitions */
