@@ -11,6 +11,11 @@ $nav-item-height: 20px;
 	padding-bottom: 0 !important;
 	padding-right:0;
 }
+
+.nav li a:hover{
+	background-color: white !important;
+}
+
 .active{
 	background-color: #333;
 	color: white;
@@ -23,6 +28,6 @@ $nav-item-height: 20px;
 .category{
 	padding-left:15px;
 	padding-top:20px;
-
+	background-color:#252525;
 }
 

@@ -1,10 +1,16 @@
 'use strict';
 
-var React = require('react/addons');
+var React               = require('react/addons'),
+    $                   = require('jquery'),
+    MLoginConfirmMixin  = require('./MLoginConfirmMixin.js');
+
 
 require('styles/MLoginForm.scss');
 
 var MLoginForm = React.createClass({
+
+  mixins:[MLoginConfirmMixin],
+
   closeLogin: function(){
     var self =this;
     var loginContainer = $(this.getDOMNode()).parent();
@@ -21,40 +27,20 @@ var MLoginForm = React.createClass({
 
   doLogout: function(e){
     e.preventDefault();
-    $.ajax({
-      type: 'POST',
-      url: 'php/login/login.php',
-      data: { 'logout': 1,},
-      success: function() {
-        console.log("logout");        
-      },
-      error: function(err,err2){
-        console.error(err);
-      }
+    var self = this;
+    this.makeLogout(function(){
+      self.props.parent.update();
     });
-    this.props.parent.update();
-    window.isLoggedIn = 0;
   },
 
-  isLoggedIn: function(callback){
+  test: function(){
     $.ajax({
       type: 'POST',
-      url: 'php/login/login.php',
-      data: { 'checkLogin': 1, },
-      success: function(msg) {
-        //console.log("CHECK LOGIN: " + msg);
-        
-        //window.isLoggedIn = msg;
-        if(msg == 1){
-          //self.closeLogin();
-          //self.state.parent.update();
-          //console.log("TRUE");
-
-          return callback(true);
-        }else{
-          //console.log("FALSE");
-          return callback(false);
-        }
+      url: 'writecontent.php',
+      data: { 'test': 1, },
+      success: function(msg) {   
+        //var json = $.parseJSON(msg);     
+        console.log(msg);
       },
       error: function(err,err2){
         console.error(err);
@@ -62,58 +48,20 @@ var MLoginForm = React.createClass({
     });
   },
 
-  regenerate: function(e){
-    e.preventDefault();
-    this.isLoggedIn(function(isLoggedIn){
-      if(isLoggedIn === false) return;
-      $.ajax({
-        type: 'POST',
-        url: 'writecontent.php',
-        data: { 'regenerate': 1,},
-        success: function() {
-          console.log("regenerate");        
-        },
-        error: function(err,err2){
-          console.error(err);
-        }
-      });
-    });
-  },
 
   submitLogin: function(e){
     e.preventDefault();
     var self = this;
-
     var username = $(this.getDOMNode()).find('#inputUsername').val();
     var password = $(this.getDOMNode()).find('#inputPassword').val();
-
     var website = window.location.hostname;
 
-
-    console.log("trying php post/get with user: '" + username + "' password: '###' - on website '" + website + "'");
-    
-    $.ajax({
-      type: 'POST',
-      url: 'php/login/login.php',
-      data: { 'makeLogin': 1, 
-          'username': username, 
-          'password': password, 
-          'website': website },
-
-      success: function(msg) {
-        console.log("LOGIN IS: " + msg);
-        
-        window.isLoggedIn = msg;
-        if(msg == 1){
-          self.closeLogin();
-        }
-        
-      },
-
-      error: function(err,err2){
-        console.error(err);
+    this.makeLogin(username,password, website, function(isLoggedIn){
+      if(isLoggedIn){
+        self.closeLogin();
       }
     });
+
   },
 
   render: function () {
@@ -167,7 +115,7 @@ var MLoginForm = React.createClass({
           <div className="adminFunctions col-sm-12">
             <ul className="list-unstyled">
               <li><a href="#" onClick={this.doLogout}> logout </a></li>
-              <li><a href="#" > refresh </a></li>
+              <li><a href="#" onClick={this.test} > refresh </a></li>
               <li><a onClick={this.regenerate} className="danger" href="#" > reset to filesystem </a></li>
             </ul>
           </div>

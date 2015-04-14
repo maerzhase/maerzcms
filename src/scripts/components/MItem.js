@@ -1,11 +1,12 @@
 'use strict';
 
-var React = require('react/addons'),
-      $   = require('jquery'),
-      MItemDummy = require('./MItemDummy.js'),
-      MImage = require('./MImage.js'),
-      MText      = require('./MText.js'),
-      MTitle      = require('./MTitle.js');
+var React               = require('react/addons'),
+    $                   = require('jquery'),
+    MItemDummy          = require('./MItemDummy.js'),
+    MImage              = require('./MImage.js'),
+    MText               = require('./MText.js'),
+    MTitle              = require('./MTitle.js'),
+    MLoginConfirmMixin  = require('./MLoginConfirmMixin.js');
 
 
 require('styles/MItem.scss');
@@ -13,26 +14,34 @@ require('styles/MItem.scss');
 
 var MItem = React.createClass({
 
-	getInitialState: function(){
+  mixins:[MLoginConfirmMixin],
 
+	getInitialState: function(){
     return({parent: this.props.parent, all_data:this.props.all_data, item_data:this.props.item_data, item_ref:this.props.item_ref});
   },
   
   componentDidMount: function(){
-        var editor = $(this.getDOMNode()).find('.editor');
+    var editor = $(this.getDOMNode()).find('.editor');
     var viewer = $(this.getDOMNode()).find('.viewer');
-          var textarea = $(editor).find('textarea');
-      $(textarea).val(this.props.item_data.md);
-
+    var textarea = $(editor).find('textarea');
+    $(textarea).val(this.props.item_data.md);
   },
 
- 	mouseEnter: function(){
+  componentWillReceiveProps: function(){
+    var editor = $(this.getDOMNode()).find('.editor');
+    var viewer = $(this.getDOMNode()).find('.viewer');
+    var textarea = $(editor).find('textarea');
+    $(textarea).val(this.props.item_data.md);
 
- 	},
+    editor.addClass('hidden');
+    viewer.removeClass('hidden');
+  },
 
- 	mouseLeave: function(){
-
- 	},
+  componentDidUpdate: function(){
+      var editor = $(this.getDOMNode()).find('.editor');
+      var textarea = $(editor).find('textarea');
+      $(textarea).val(this.props.item_data.md);
+  },
 
   autoGrow: function(e){
     var textField = e.currentTarget;
@@ -43,124 +52,40 @@ var MItem = React.createClass({
       }
     }
   },
+  
+  mouseEnter: function(){	},
 
-  onSubmit: function(){
-    console.log("SUBMIT");
-  },
+ 	mouseLeave: function(){ },
 
-  saveJson: function(md){
-    var self = this;
-    this.isLoggedIn(function(isLoggedIn){
-      if(isLoggedIn === false) return;
-
-      self.props.item_data['md'] = md;
-      $.ajax({
-        type: 'POST',
-        url: 'writecontent.php',
-        data: {'saveFile': self.props.all_data},
-        success: function(msg) {
-          console.log("updated .json file");
-        },
-        error: function(err,err2){
-          console.error(err);
-        }
-      });
-    });
-  },
-
-  updateFile: function(md,url){
-    var self = this;
-    this.isLoggedIn(function(isLoggedIn){
-      if(isLoggedIn === false) return;
-
-      self.props.item_data['md'] = md;
-      $.ajax({
-        type: 'POST',
-        url: 'writecontent.php',
-        data:{'updateFile': 1,
-              'fileURL': url,
-              'fileContent': md},
-        success: function(msg) {
-          console.log("updated file" + msg);
-        },
-        error: function(err,err2){
-          console.error(err);
-        }
-      });
-    });
-  },
-
-  isLoggedIn: function(callback){
-    $.ajax({
-      type: 'POST',
-      url: 'php/login/login.php',
-      data: { 'checkLogin': 1, },
-
-      success: function(msg) {
-        console.log("CHECK LOGIN: " + msg);
-        
-        //window.isLoggedIn = msg;
-        if(msg == 1){
-          //self.closeLogin();
-          //self.state.parent.update();
-          console.log("TRUE");
-
-          return callback(true);
-        }else{
-          console.log("FALSE");
-          return callback(false);
-        }
-        
-      },
-
-      error: function(err,err2){
-        console.error(err);
-      }
-    });
-  },
+  onSubmit: function(){  },
 
   enterItem: function(){
     if(window.isLoggedIn == 0) return;
+
     var viewer= $(this.getDOMNode()).find('.viewer');
     $(viewer).css({
-      'opacity':'0.5',
+      'opacity':'0.8',
       'cursor':'pointer',
     });
   },
 
   leaveItem: function(){
     if(window.isLoggedIn == 0) return;
+
     var viewer= $(this.getDOMNode()).find('.viewer');
     $(viewer).css({
       'opacity':'1',
-      'cursor':'standart',
-
+      'cursor':'default',
     });
   },
 
  	mouseClick: function(){
-    /*
-    var self = this;
-    this.isLoggedIn(function(isLoggedIn){
-      console.log("CEHECKER " + isLoggedIn);
-      if(isLoggedIn === false) return;
-      var editor = $(self.getDOMNode()).find('.editor');
-      var viewer= $(self.getDOMNode()).find('.viewer');
-
-      editor.removeClass('hidden');
-      viewer.addClass('hidden');
-
-    });
-    */
-
     if(window.isLoggedIn == 0) return;
+
     var editor = $(this.getDOMNode()).find('.editor');
     var viewer= $(this.getDOMNode()).find('.viewer');
-
     editor.removeClass('hidden');
     viewer.addClass('hidden');
-
-    //this.setState({parent: this.props.parent, all_data:this.props.all_data, item_data: this.props.item_data, item_ref: this.props.item_ref});
  	},
 
   checkSubmit: function(e){
@@ -173,57 +98,27 @@ var MItem = React.createClass({
     var item_data = this.props.item_data;
     var editor = $(this.getDOMNode()).find('.editor');
     var viewer = $(this.getDOMNode()).find('.viewer');
-
     var textarea = $(editor).find('textarea');
-    
     var markdown = $(textarea).val();
     
-    this.props.item_data.md = markdown;
-
     editor.addClass('hidden');
     viewer.removeClass('hidden');
-
-    this.saveJson(markdown);
+    
+    this.props.item_data.md = markdown;
+    this.saveJson(this.props.all_data);
     
     if(item_data.type == "text" || item_data.type == "title" ){
-      this.updateFile(markdown,item_data.url);
+      this.updateTextFile(item_data.url,markdown);
     }
 
     this.setState({parent: this.props.parent, all_data:this.props.all_data, item_data: this.props.item_data, item_ref: this.props.item_ref});
   },
 
  	inputChange: function(e){
-      var md = e.currentTarget.value;
-      var editor = $(this.getDOMNode()).find('.editor');
-      var textarea = $(editor).find('textarea');
-     // textarea = $(textarea).val('ms');
-      //console.log(textarea);
-      //console.log(md);
-      //this.setState({md: md});
-          //this.setState({parent: this.props.parent, all_data:this.props.all_data, item_data: this.props.item_data, item_ref: this.props.item_ref});
-
- 	},
-
- 	componentWillReceiveProps: function(){
- 		
+    var md = e.currentTarget.value;
     var editor = $(this.getDOMNode()).find('.editor');
-    var viewer = $(this.getDOMNode()).find('.viewer');
-          var textarea = $(editor).find('textarea');
-
-     // $(textarea).html(this.props.item_data.md);
-      $(textarea).val(this.props.item_data.md);
-
-    editor.addClass('hidden');
-    viewer.removeClass('hidden');
+    var textarea = $(editor).find('textarea');
  	},
-
- 	componentDidUpdate: function(){
-      var editor = $(this.getDOMNode()).find('.editor');
-      var textarea = $(editor).find('textarea');
-   	 // console.log("TEST" + this.props.item_data.md);
-
-      $(textarea).val(this.props.item_data.md);
-  },
 
   getSpecificComponent: function(){
     var item_data = this.props.item_data;

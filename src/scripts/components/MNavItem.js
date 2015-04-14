@@ -6,80 +6,66 @@ var React = require('react/addons'),
 require('styles/MNavItem.scss');
 
 var MNavItem = React.createClass({
-    getInitialState: function(){
-      return{active: this.props.active, visible: this.props.visible, parent:this.props.parent, mode: 'display',name:this.props.name, category:this.props.category};
-    },
 
-    mouseEnter: function(){
-    	this.setState({mode:'focus'});
-    },
+  getInitialState: function(){
+    return{data: this.props.data, active: this.props.active, visible: this.props.visible, parent:this.props.parent, mode: 'display',name:this.props.name, category:this.props.category};
+  },
 
-    mouseLeave: function(){
-    	this.setState({mode:'display'});
-    },
+  mouseEnter: function(){
+    this.setState({mode:'focus'});
+  },
 
-    startEdit: function(){
-    	this.setState({mode:'edit'});
-    },
+  mouseLeave: function(){
+    this.setState({mode:'display'});
+  },
 
-    endEdit: function(){
-    	this.setState({mode:'focus'});
-    },
+  startEdit: function(){
+    this.setState({mode:'edit'});
+  },
 
-    componentDidUpdate: function(){
+  endEdit: function(){
+    this.setState({mode:'focus'});
+  },
 
-    },
+  componentDidUpdate: function(){
 
-    loadProject: function(){
-        var navItem = $(this.getDOMNode());
-        //$(navItem).addClass('active');
-    	this.state.parent.setActiveProject(this.state.name, this.state.category);
-        var obj = { title: this.props.name, url: "/#/"+this.props.category+"/"+this.props.name };
-        history.pushState(obj, obj.title, obj.url);
-    },
+  },
+
+  loadProject: function(){
+    var navItem = $(this.getDOMNode());
+    this.state.parent.setActiveProject(this.state.name, this.state.category);
+    var obj = { title: this.props.name, url: "/#/"+this.props.category+"/"+this.props.name };
+    history.pushState(obj, obj.title, obj.url);
+  },
+
+  renameItem: function(){
+    var allProjects = this.props.data;
+    var oldName = this.props.name;
+    var newName = "test";
+    if(allProjects.hasOwnProperty(oldName)){
+        allProjects[newName] = allProjects[oldName];
+        delete allProjects[oldName];
+        this.state.parent.setActiveProject(this.state.name, this.state.category);
+        console.log(allProjects);
+    }
+  },
 
 	render: function(){
-        var visibleMark;
-
-        if(this.props.visible == "false" && window.isLoggedIn == 1){
-            visibleMark = "(hidden)";
-        }
-
-        if(this.props.visible == "false" && window.isLoggedIn == 0){
-            if(this.state.mode === 'display'){
-                return(
-                <li className="hidden MNavItem" onTouchStart={this.loadProject} onMouseEnter={this.mouseEnter}><a className={this.props.active}><div> {this.state.name}  </div></a></li>
-                );
-            }
-            else if(this.state.mode === 'focus'){
-                return( 
-                <li className="hidden MNavItem" onDoubleClick={this.startEdit} onMouseLeave={this.mouseLeave} onClick={this.loadProject} ><a className={this.props.active}><div> {this.state.name} </div></a></li>
-                );
-            }
-            else if(this.state.mode === 'edit'){
-                return(
-                <li className="hidden MNavItem" ><a><div onDoubleClick={this.endEdit}> <i> {this.state.name}  </i></div></a></li>
-                );
-            }
-        }else{
-            if(this.state.mode === 'display'){
-                return(
-                <li className="MNavItem" onTouchStart={this.loadProject} onMouseEnter={this.mouseEnter}><a className={this.props.active}><div> {this.state.name} {visibleMark}  </div></a></li>
-                );
-            }
-            else if(this.state.mode === 'focus'){
-                return( 
-                <li className="MNavItem" onDoubleClick={this.startEdit} onMouseLeave={this.mouseLeave} onClick={this.loadProject} ><a className={this.props.active}><div>{this.state.name} {visibleMark} </div></a></li>
-                );
-            }
-            else if(this.state.mode === 'edit'){
-                return(
-                <li className="MNavItem"><a><div onDoubleClick={this.endEdit}> <i> {this.state.name} {visibleMark}  </i></div></a></li>
-                );
-            }
-        }
+    var visibleMark;
+    if(this.props.visible == "false" && window.isLoggedIn == 1){
+      visibleMark = "(hidden)";
+    }
+    var navItem;
+    if(this.props.visible == "false" && window.isLoggedIn == 0){
+      navItem = <li className="hidden MNavItem" onTouchStart={this.loadProject} onClick={this.loadProject} ><a className={this.props.active}><div> {this.state.name}  </div></a></li>;
+    }else{
+      navItem = <li className="MNavItem" onTouchStart={this.loadProject} onClick={this.loadProject}> <a className={this.props.active}><div> {this.state.name} {visibleMark}  </div></a></li>;
+    }
+    return ( navItem );
 	}
 });
+
+
 
 module.exports = MNavItem; 
 

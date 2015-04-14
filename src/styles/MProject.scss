@@ -11,8 +11,7 @@
 .onoffswitch {
 	z-index:1;
 	margin-bottom:40px;
-	right:100px;
-    position: fixed; 
+    position: relative; 
     width: 100px;
     -webkit-user-select:none; -moz-user-select:none; -ms-user-select: none;
 }
@@ -48,7 +47,7 @@
     display: block; width: 18px; margin: 7px;
     background: #FFFFFF;
     border: 2px solid #999999; border-radius: 20px;
-    position: absolute; top: -2px; bottom: 2px; right: 64px;
+    position: absolute; top: 0px; bottom: 0px; right: 64px;
     -moz-transition: all 0.3s ease-in 0s; -webkit-transition: all 0.3s ease-in 0s;
     -o-transition: all 0.3s ease-in 0s; transition: all 0.3s ease-in 0s; 
 }

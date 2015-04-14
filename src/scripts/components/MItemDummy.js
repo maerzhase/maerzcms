@@ -1,8 +1,8 @@
 'use strict';
 
-var React 	= require('react/addons'),
-		$ 	= require('jquery'),
-Showdown 	= require('showdown');
+var React 	  = require('react/addons'),
+		$       	= require('jquery'),
+    Showdown 	= require('showdown');
 
 require('styles/MItemDummy.scss');
 
