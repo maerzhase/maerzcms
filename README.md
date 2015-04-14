@@ -1,5 +1,5 @@
 # maerzcms
-File-Based CMS written in Javascript / PHP; using yeoman generator with react-webpack
+File-Based CMS written in Javascript (ReactJS) / PHP; using yeoman generator with react-webpack
 
 ## yeoman-generator - grunt + webpack + react
 this project uses yeoman with the react/webpack generator. for short instructions please visit: http://newtriks.com/2013/12/31/automating-react-with-yeoman-and-grunt/
