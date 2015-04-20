@@ -20,13 +20,14 @@ var MImage = React.createClass({
  	componentWillReceiveProps: function(){ },
 
  	componentDidUpdate: function(){
-   	 var image= $(this.getDOMNode()).find('img');    
+   	 var image = $(this.getDOMNode()).find('img');    
  	},
 
 	render: function(){
-
+    
     var theMarkup = converter.makeHtml(this.props.md);
-		return(
+		
+    return(
 			<div className="MImage"> 
 				<div dangerouslySetInnerHTML={{__html: theMarkup}} /> 
 			</div>

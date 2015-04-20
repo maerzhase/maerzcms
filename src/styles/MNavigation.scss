@@ -1,6 +1,13 @@
+@import 'settings';
+
 $nav-item-height: 20px;
 
 .MNavigation{
+
+}	
+
+.nav li{
+	background-color: $sidebar-background;
 }
 
 .nav li a{
@@ -17,7 +24,7 @@ $nav-item-height: 20px;
 }
 
 .active{
-	background-color: #333;
+	background-color: $activelink-background;
 	color: white;
 }
 
@@ -25,9 +32,27 @@ $nav-item-height: 20px;
 	font-weight:bold !important;
 }
 
-.category{
-	padding-left:15px;
+li.category{
 	padding-top:20px;
-	background-color:#252525;
+	background-color:$category-background !important;
+}
+
+.categoryContainer{
+	padding-left:15px;
+	height:40px;
+
+}
+.glyphicon{
+	z-index:10;
+	float:right;
+	margin-right:20px;		
+}
+
+.glyphicon:hover{
+	cursor: pointer;
+}
+
+.placeholder { 
+    border: 1px dashed #fff;
 }
 

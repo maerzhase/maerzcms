@@ -1,5 +1,7 @@
 /* Stiziles */
 
+@import 'settings';
+
 html, body {
   background-color: #fff !important;
   height: 100%;
@@ -8,7 +10,9 @@ html, body {
   letter-spacing: 1px;
   -webkit-font-smoothing: subpixel-antialiased;
 }
-
+html {
+    overflow-y: scroll;
+}
 /* main */
 
 .main {
@@ -27,9 +31,10 @@ html, body {
   position: fixed;
   height: 100%;
   transition: all 0.4s ease 0s;
-  overflow-y:auto;
-  background-color: #222;
-  color: #aaa !important;
+  overflow-y:hidden;
+  overflow-x:hidden;
+  background-color: $sidebar-background;
+  color: $category-fontcolor;
   z-index: 1;
 }
 
@@ -41,12 +46,12 @@ html, body {
 }
 
 .sidebar-nav {
-  position: absolute;
   top: 0;
   width: 250px;
   list-style: none;
   margin: 0;
   padding: 0;
+
 
 }
 
@@ -56,7 +61,7 @@ html, body {
   height:20px;
   line-height: 20px;
   bottom:0;
-  background-color: white;
+  background-color: #fff;
   font-size: 12px;
   text-align: center;
   z-index: -0;
@@ -130,33 +135,14 @@ html, body {
   transition: opacity 0.3s  ease-in-out;
 }
 
-/* transitions */
-
-.fade-enter {
-  opacity: 0.01;
-  transition: opacity .5s ease-in;
-}
-
-.fade-enter.fade-enter-active {
-  opacity: 1;
-}
-
-.fade-leave {
-  opacity: 1;
-  transition: opacity .5s ease-in;
-}
-
-.fade-leave.fade-leave-active {
-  opacity: 0.01;
-}
-
-
-
-
-/* stuff */
+/* utils */
 
 .hidden{
   visibility: hidden !important;
+}
+
+.none{
+  display:none;
 }
 
 .img-responsive{

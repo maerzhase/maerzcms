@@ -1,6 +1,6 @@
 'use strict';
 
-var $   = require('jquery');
+var $ = require('jquery');
 
 var MLoginConfirmMixin = {
 
@@ -63,16 +63,63 @@ var MLoginConfirmMixin = {
     });
   },
 
-  saveJson: function(data){
+  updateCategoryVisibility: function(category,visibility,callback){
     var self = this;
     this.isLoggedIn(function(isLoggedIn){
       if(isLoggedIn === false) return;
       $.ajax({
         type: 'POST',
         url: 'writecontent.php',
-        data: {'saveFile': data},
+        data: { 'updateCategoryVisibility':1,
+                'categoryName': category,
+                'categoryVisibility':visibility
+              },
         success: function(msg) {
-          console.log("[WRITE] updated .json file");
+          console.log("[WRITE] updated category visibility");
+          console.log(msg);
+          callback();
+        },
+        error: function(err,err2){
+          console.error(err);
+        }
+      });
+    });
+  },
+
+  updateNavigation: function(data, callback){
+    var self = this;
+     $.ajax({
+       type: 'POST',
+       url: 'writecontent.php',
+       data: { 'updateNavigation':1,
+               'nav_data': data
+             },
+       success: function(msg) {
+         console.log("[WRITE] updated project layout .json file");
+         console.log(msg);
+         callback();
+       },
+       error: function(err,err2){
+         console.error(err);
+       }
+     });
+  },
+
+  updateItem: function(data,path, callback){
+    var self = this;
+    this.isLoggedIn(function(isLoggedIn){
+      if(isLoggedIn === false) return;
+      $.ajax({
+        type: 'POST',
+        url: 'writecontent.php',
+        data: { 'updateProject':1,
+                'data': data,
+                'path':path
+              },
+        success: function(msg) {
+          console.log("[WRITE] updated project layout .json file");
+          console.log(msg);
+          callback();
         },
         error: function(err,err2){
           console.error(err);
@@ -113,25 +160,6 @@ var MLoginConfirmMixin = {
               'folderName': folderName},
         success: function(msg) {
           console.log("[WRITE] update folder " + url);
-        },
-        error: function(err,err2){
-          console.error(err);
-        }
-      });
-    });
-  },
-
-
-  regenerate: function(e){
-    e.preventDefault();
-    this.isLoggedIn(function(isLoggedIn){
-      if(isLoggedIn === false) return;
-      $.ajax({
-        type: 'POST',
-        url: 'writecontent.php',
-        data: { 'regenerate': 1,},
-        success: function() {
-          console.log("[WRITE] regenerate");        
         },
         error: function(err,err2){
           console.error(err);

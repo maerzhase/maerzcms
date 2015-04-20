@@ -8,7 +8,7 @@ require('styles/MNavItem.scss');
 var MNavItem = React.createClass({
 
   getInitialState: function(){
-    return{data: this.props.data, active: this.props.active, visible: this.props.visible, parent:this.props.parent, mode: 'display',name:this.props.name, category:this.props.category};
+    return{data: this.props.data, active: this.props.active, visible: this.props.visible, parent:this.props.parent, mode: 'display', name:this.props.name, category:this.props.category};
   },
 
   mouseEnter: function(){
@@ -27,14 +27,14 @@ var MNavItem = React.createClass({
     this.setState({mode:'focus'});
   },
 
-  componentDidUpdate: function(){
-
-  },
+  componentDidUpdate: function(){ },
 
   loadProject: function(){
-    var navItem = $(this.getDOMNode());
-    this.state.parent.setActiveProject(this.state.name, this.state.category);
+    // call setActiveProject of MProject to update project & category
+    this.props.parent.setActiveItem(this.props.name, this.props.category);
+    // make object containing url parameters
     var obj = { title: this.props.name, url: "/#/"+this.props.category+"/"+this.props.name };
+    // push url parameters to url
     history.pushState(obj, obj.title, obj.url);
   },
 
@@ -55,11 +55,13 @@ var MNavItem = React.createClass({
     if(this.props.visible == "false" && window.isLoggedIn == 1){
       visibleMark = "(hidden)";
     }
+
     var navItem;
+    // if items is hidden and user is not logged in, hide nav item
     if(this.props.visible == "false" && window.isLoggedIn == 0){
-      navItem = <li className="hidden MNavItem" onTouchStart={this.loadProject} onClick={this.loadProject} ><a className={this.props.active}><div> {this.state.name}  </div></a></li>;
+      navItem = <li  id={this.props.name} className="hidden MNavItem" onTouchStart={this.loadProject} onClick={this.loadProject} ><a className={this.props.active}><div> {this.props.name}  </div></a></li>;
     }else{
-      navItem = <li className="MNavItem" onTouchStart={this.loadProject} onClick={this.loadProject}> <a className={this.props.active}><div> {this.state.name} {visibleMark}  </div></a></li>;
+      navItem = <li id={this.props.name} className="MNavItem" onTouchStart={this.loadProject} onClick={this.loadProject}> <a className={this.props.active}><div> {this.props.name} {visibleMark}  </div></a></li>;
     }
     return ( navItem );
 	}

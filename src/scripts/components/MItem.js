@@ -17,9 +17,15 @@ var MItem = React.createClass({
   mixins:[MLoginConfirmMixin],
 
 	getInitialState: function(){
-    return({parent: this.props.parent, all_data:this.props.all_data, item_data:this.props.item_data, item_ref:this.props.item_ref});
+    return({parent: this.props.parent, url_ref: this.props.url_ref, all_data:this.props.all_data, item_data:this.props.item_data, item_ref:this.props.item_ref});
   },
   
+  mouseEnter: function(){ },
+
+  mouseLeave: function(){ },
+
+  onSubmit: function(){ },
+
   componentDidMount: function(){
     var editor = $(this.getDOMNode()).find('.editor');
     var viewer = $(this.getDOMNode()).find('.viewer');
@@ -53,12 +59,6 @@ var MItem = React.createClass({
     }
   },
   
-  mouseEnter: function(){	},
-
- 	mouseLeave: function(){ },
-
-  onSubmit: function(){  },
-
   enterItem: function(){
     if(window.isLoggedIn == 0) return;
 
@@ -105,20 +105,25 @@ var MItem = React.createClass({
     viewer.removeClass('hidden');
     
     this.props.item_data.md = markdown;
-    this.saveJson(this.props.all_data);
-    
-    if(item_data.type == "text" || item_data.type == "title" ){
-      this.updateTextFile(item_data.url,markdown);
+
+    var self = this;
+    if(this.props.parent !== null ){
+        this.updateItem(this.props.parent.props.itemData, this.props.url_ref, function(){
+      });
     }
 
-    this.setState({parent: this.props.parent, all_data:this.props.all_data, item_data: this.props.item_data, item_ref: this.props.item_ref});
+    console.log(item_data);
+
+      if(item_data.type == "text" || item_data.type == "title" ){
+        self.updateTextFile(self.props.url_ref + item_data.url, markdown);
+        console.log(markdown);
+      }
+
+      self.setState({parent: self.props.parent, all_data:self.props.all_data, item_data: self.props.item_data, item_ref: self.props.item_ref});
+    
   },
 
- 	inputChange: function(e){
-    var md = e.currentTarget.value;
-    var editor = $(this.getDOMNode()).find('.editor');
-    var textarea = $(editor).find('textarea');
- 	},
+ 	inputChange: function(e){ },
 
   getSpecificComponent: function(){
     var item_data = this.props.item_data;
@@ -132,12 +137,12 @@ var MItem = React.createClass({
 
     // create components by item type
     switch(item_data.type){
-      case "pictures":
+      case "image":
         // if md is empty create new md
-       // console.log("YES CREATING PICTURE  " + item_data.md);
+       //console.log("YES CREATING PICTURE  " + item_data.md);
 
         if(item_data.md === null || item_data.md == "" || typeof item_data.md === 'undefined'){
-          itemComponent.md = "![picture]("+encodeURI(item_data.url)+")";
+          itemComponent.md = "![picture]("+encodeURI(self.props.url_ref + item_data.url)+")";
           item_data.md = itemComponent.md;
 
         }else{
@@ -147,7 +152,7 @@ var MItem = React.createClass({
         // make specific component
         itemComponent.component =  ( <MImage 
                                         parent={self} 
-                                        url={item_data.url}
+                                        url={self.props.url_ref + item_data.url}
                                         md={item_data.md} 
                                         bottom="" 
                                         top="" 
@@ -219,8 +224,13 @@ var MItem = React.createClass({
     //console.log("a");
     //console.log("RENDERING PICTURE " + itemComponent.component.props.md);
     var editorClass ="editor hidden " + this.props.item_data.type;
+    var loginClass = "MItem";
+    if(window.isLoggedIn == 1){
+       loginClass += " loggedIn"
+    }
+
 		return(
-			<div className="MItem">
+			<div className={loginClass}>
           <div onDoubleClick={this.mouseClick} className="valid"> 
               <div onMouseOver={this.enterItem} onMouseOut={this.leaveItem} className="viewer"> {itemComponent.component} </div>
               <div className={editorClass} onSubmit={this.onSubmit}>

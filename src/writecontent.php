@@ -1,8 +1,13 @@
 <?php
 
+require('php/login/connect.php');
+	session_start();
+
 function scanProjectFolder($path){
 	
 	$project = array();
+	$project['visible'] = "true";
+	$project['items'] = array();
 
 	foreach (glob( $path.'/*' ) as $file ) {
 		$directory_parts = explode('/', $file);
@@ -27,9 +32,14 @@ function scanProjectFolder($path){
 				break;
 
 				case 'txt':
+
+					$handle = fopen($file, "r");
+					$md = fread($handle, filesize($file));
+					fclose($handle);
+
 					$item['type']	= "text";
 					$item['url'] 	= $filename.'.'.$extension;
-					$item['md'] 	= "";
+					$item['md'] 	= $md;
 				break;
 
 				case 'mp4';
@@ -38,14 +48,14 @@ function scanProjectFolder($path){
 					$item['md'] 	= "";
 				break;
 			}
-			array_push($project, $item);
+			array_push($project['items'], $item);
 		}
 	}
 
 	return $project;
 }
 
-function initNavigationFile($path, &$navigationLayout){
+function updateNavigationLayout($path, &$navigationLayout){
 
 	foreach (glob( $path.'/*' ) as $file ) {
 
@@ -58,12 +68,12 @@ function initNavigationFile($path, &$navigationLayout){
 				$category = $directory_parts[1];
 				$categoryArray = array();
 				$categoryArray['category'] = $category;
-				$categoryArray['visible'] = true;
+				$categoryArray['visible'] = "true";
 				$categoryArray['items'] = array();
 
 				array_push($navigationLayout['navigation'], $categoryArray);
 				// Go deeper (projects)
-				initNavigationFile($file, $navigationLayout);
+				updateNavigationLayout($file, $navigationLayout);
 			}
 
 			// if we are in the 3rd hierachy (projects)
@@ -81,7 +91,7 @@ function initNavigationFile($path, &$navigationLayout){
 
 				$projectArray = array();
 				$projectArray['name'] = $directory_parts[2];
-				$projectArray['visible'] = true;
+				$projectArray['visible'] = "true";
 
 				// add items to our referenced navigationLayout
 				array_push($categoryArray['items'], $projectArray);
@@ -101,49 +111,104 @@ function updateProjectLayout($category, $projectname){
 	if($fileContent !== FALSE){
 	
 		// encode fileContent to json object
-		$existingLayout = json_decode($fileContent, true);
-		
+		$existingLayout = json_decode($fileContent,true);
+		// scan projectfolder for existing content
+		$scannedLayout = scanProjectFolder('content/'.$category.'/'.$projectname.'/');
+		// check every item generate from file structure
+		foreach($scannedLayout['items'] as &$scannedItem){	
+			//if item is type 'text'
+			if($scannedItem['type'] == "text"){
+				// check all existing items from old layout-file
+				foreach($existingLayout['items'] as &$existingItem){
+					// if we found the same item
+					if($scannedItem['url'] == $existingItem['url']){
+						// check if content (markdown) of file changed
+						if($scannedItem['md'] != $existingItem['md']){
+							// replace content of old item with new item
+							$existingItem['md'] = $scannedItem['md'];
+							// save layout-file
+							file_put_contents($file, json_encode($existingLayout));
+							echo "found changes, saving file".PHP_EOL;
+						}
+					}
+				}
+			}
+		}
 		echo "exists".PHP_EOL;
 	}
-
 	// if layout-file doesn't exist
 	else{
 	
-		// load array from folder structure
+		// load project layout from folder structure
 		$newProjectLayout = scanProjectFolder('content/'.$category.'/'.$projectname.'/');
 		// save array in layout-file
 		file_put_contents($file, json_encode($newProjectLayout));
-	
 		echo "doesn't exist".PHP_EOL;
 	}
 
 }
 
-
-function updateNavigation(){
-
-
-}
-
-
-function initContent($path){
-
+function scanNavigationLayout($path){
 	// create empty navigationLayout
 	$navigationLayout = array();
 
-	// add websiteTitle to navigationLayout
+	// looking for website title file
+	$websiteTitleFile = "content/websiteTitle.txt";
+	// if exists read markdown
+	if($websiteTitleFile !== FALSE){
+		$handle = fopen($websiteTitleFile, "r");
+		$md = fread($handle, filesize($websiteTitleFile));
+		fclose($handle);
+	}else{
+		// else create empty markdown
+		$md = "";
+	}
+
+	// create website title item
 	$navigationLayout['websiteTitle'] = array();
-	$navigationLayout['websiteTitle']['file'] = "websiteTitle.txt";
+	$navigationLayout['websiteTitle']['url'] = "websiteTitle.txt";
 	$navigationLayout['websiteTitle']['type'] = "title";
-	$navigationLayout['websiteTitle']['md'] = "";
+	$navigationLayout['websiteTitle']['md'] = $md;
 
 	// add empty navigation array to navigationLayout
 	$navigationLayout['navigation'] = array();
 
-	// iterate through folder structure to generate navigationLayout
-	initNavigationFile($path, $navigationLayout);
+	// iterate through folder structure to generate navigationLayout (we pass $navigationLayout by reference so its being altered in updateNavigationLayout)
+	updateNavigationLayout($path, $navigationLayout);
 
-	// get all categorys
+	return $navigationLayout;
+}
+
+function initContent($path){
+
+	// path to current navigation layout-file
+	$navigationLayoutFile = 'navigationLayout.json';
+	// get current layout-file content
+	$fileContent = file_get_contents($navigationLayoutFile);
+
+	$doWrite = false;
+
+	if($fileContent !== FALSE){
+		$existingNavigationLayout = json_decode($fileContent,true);
+		$scannedNavigationLayout = scanNavigationLayout($path);
+
+		// check changes in websiteTitle.txt
+		if($scannedNavigationLayout['websiteTitle']['md'] != $existingNavigationLayout['websiteTitle']['md']){
+			$existingNavigationLayout['websiteTitle']['md'] = $scannedNavigationLayout['websiteTitle']['md'];
+			$doWrite = true;
+		}
+
+
+		$navigationLayout = $existingNavigationLayout;
+	}
+	else{
+		// create empty navigationLayout
+		$navigationLayout = scanNavigationLayout($path);
+		$doWrite = true;
+	}
+	
+
+	// get all categorys from recent navigationLayout
 	$categorys = $navigationLayout['navigation'];
 
 	// get all categorysContents
@@ -157,42 +222,84 @@ function initContent($path){
 		}
 	}
 
-	$navigationLayoutFile = 'navigationLayout.json';
-	file_put_contents($navigationLayoutFile, json_encode($navigationLayout));
+	if($doWrite){
+		file_put_contents($navigationLayoutFile, json_encode($navigationLayout));
+	}
+}
+
+if(isset($_POST['updateNavigation'])){
+	if(isLoggedIn()){
+		echo "is logged in".PHP_EOL;
+	}else{
+		echo "is NOT logged in".PHP_EOL;
+	}
+	return;
+	$nav_data = $_POST['nav_data'];
+
+	$navigationLayoutFile = "navigationLayout.json";
+	$fileContent = file_get_contents($navigationLayoutFile);
+	$navigationLayout = json_decode($fileContent,true);
+
+	$navigationLayout['navigation'] = $nav_data; 
+	
+//	file_put_contents($navigationLayoutFile, json_encode($navigationLayout));
 }
 
 
+if(isset($_POST['updateCategoryVisibility'])){
+	$categoryName = $_POST['categoryName'];
+	$categoryVisibility = $_POST['categoryVisibility'];
 
+	$navigationLayoutFile = "navigationLayout.json";
+	$fileContent = file_get_contents($navigationLayoutFile);
+	$navigationLayout = json_decode($fileContent,true);
+
+
+	foreach($navigationLayout['navigation'] as $key => &$categoryObject){
+
+		if($categoryObject['category'] == $categoryName){
+
+			$categoryObject['visible'] = $categoryVisibility;
+		}
+	}
+
+	file_put_contents($navigationLayoutFile, json_encode($navigationLayout));
+}
 
 if(isset($_POST['test'])){
 	initContent('content');
 }
 
+if(isset($_POST['updateProject']) && !empty($_POST['updateProject'])) {
+	//echo "asdasdasd";
+ 	$json = $_POST['data'];
+ 	$path = $_POST['path'];
+	$file = $path .'projectLayout.json';
+	echo json_encode($json);
 
-function iterate(){
-	$navigationLayout = array();
-	$navigationLayout['navigation'] = array();
+	file_put_contents($file, json_encode($json));
+	$directory_parts = explode('/', $file);
+	$category = $directory_parts[1];
+	$item_name = $directory_parts[2];
 
-	foreach($projects as $category => $projects_in_category){
-		$categoryArray = array();
-		$categoryArray['category'] = $category;
-		$categoryArray['visible'] = true;
-		$categoryArray['items'] = array();
+	$navigationLayoutFile = "navigationLayout.json";
+	$fileContent = file_get_contents($navigationLayoutFile);
+	$navigationLayout = json_decode($fileContent,true);
 
- 		foreach($projects_in_category as $projectname => $project){
-			$projectArray = array();
-			$projectArray['name'] = $projectname;
-			$projectArray['visible'] = true;
 
-			array_push($categoryArray['items'], $projectArray);
-		}	
-		array_push($navigationLayout['navigation'], $categoryArray);
+	foreach($navigationLayout['navigation'] as $key => &$categoryObject){
+		if($categoryObject['category'] == $category){
+			foreach($categoryObject['items'] as &$item){
+				if($item['name'] == $item_name){
+					$item['visible'] = $json['visible'];
+				}
+			}
+		}
 	}
 
-	array_push($navigationLayout['websiteTitle'], $content['websiteTitle']);
-	$navigationLayoutFile = 'navigationLayout.json';
 	file_put_contents($navigationLayoutFile, json_encode($navigationLayout));
 }
+
 
 
 // if PHP POST: Save File
@@ -212,15 +319,23 @@ if(isset($_POST['updateFile'])){
 	echo $url;
 }
 
-if(isset($_POST['regenerate'])){
-	scanFolder('content',0,false);
-	writeContent();
-}
-
 if(isset($_POST['renameFolder'])){
  	$url = $_POST['url'];
  	$newFolder = $_POST['folderName'];
   	rename($url, $newFolder);
 }
+
+
+function isLoggedIn(){
+	if(isset($_SESSION['username'])){
+		return 1;
+	}else{
+		return 0;
+	}
+}
+
+
+
+
 
 ?>

@@ -172,9 +172,14 @@ function scanProjectFolder($path){
 				break;
 
 				case 'txt':
+
+					$handle = fopen($file, "r");
+					$text = fread($handle, filesize($file));
+					fclose($handle);
+					
 					$item['type']	= "text";
 					$item['url'] 	= $filename.'.'.$extension;
-					$item['md'] 	= "";
+					$item['md'] 	= $md;
 				break;
 
 				case 'mp4';
